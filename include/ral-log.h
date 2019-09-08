@@ -3,6 +3,7 @@
 #include "../src/init/macros.h"
 #include "../src/log/logstream.h"
 #include <iostream>
+#include <fstream>
 
 namespace RALlogger
 {
@@ -20,4 +21,7 @@ namespace RALlogger
 
     inline static void logError(const char* message, const char* sender = "", const char* format = "")
     { log::LogStream(std::cout.rdbuf()) << log::ERROR << log::Sender(sender) << log::Format(format) << message << std::endl; }
+
+    inline static void writeToLog(const char* message, const char* pathToFile, const char* sender = "", const char* format = "")
+    { log::LogStream(std::ofstream(pathToFile, std::ios_base::out | std::ios_base::app).rdbuf()) << log::FILE << log::Sender(sender) << log::Format(format) << message << std::endl; }
 }

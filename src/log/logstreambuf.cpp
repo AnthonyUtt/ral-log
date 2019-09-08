@@ -1,8 +1,8 @@
 #include "logstreambuf.h"
-#include <string>
 #include <sstream>
 #include <time.h>
 #include <chrono>
+#include <iostream>
 
 namespace log
 {
@@ -43,9 +43,10 @@ namespace log
                 time(&curTime);
                 tmp = localtime(&curTime);
 
-                parseFormat(m_format);
+                std::string formatFront, formatBack;
+                parseFormat(m_format, formatFront, formatBack);
 
-                strftime(timestampFront, sizeof(timestampFront), m_formatFront, tmp);
+                strftime(timestampFront, sizeof(timestampFront), formatFront.c_str(), tmp);
                 std::size_t fractional_seconds = ms.count() % 1000;
 
                 oss << timestampFront;
@@ -54,9 +55,9 @@ namespace log
                 {
                     oss << "." << fractional_seconds;
 
-                    if (m_formatBack != "")
+                    if (formatBack.length() > 0)
                     {
-                        strftime(timestampBack, sizeof(timestampBack), m_formatBack, tmp);
+                        strftime(timestampBack, sizeof(timestampBack), formatBack.c_str(), tmp);
                         oss << timestampBack;
                     }
                 }
@@ -74,10 +75,11 @@ namespace log
                         break;
                     case ERROR: oss << color(RED);
                         break;
+                    case FILE: oss << color(NOCOLOR);
                     default: break;
                 }
 
-                oss << m_sender << color(WHITE) << "]: ";
+                oss << m_sender << ((m_level == FILE)?color(NOCOLOR):color(WHITE)) << "]: ";
 
                 std::string ostr = oss.str();
                 std::streamsize ssize = m_pBuf->sputn(ostr.c_str(), ostr.length());
@@ -97,28 +99,34 @@ namespace log
         return value;
     }
 
-    void LogStreamBuf::parseFormat(const char* format)
+    void LogStreamBuf::parseFormat(const char* format, std::string& formatFront, std::string& formatBack)
         {
             if (format != "")
             {
                 m_ms = false;
                 std::string formatStr(format);
                 
-                std::size_t pos = formatStr.find("%Q");
+                std::size_t pos = formatStr.find(".%Q");
                 if (pos != std::string::npos)
                 {
                     m_ms = true;
-                    std::string formatFront(formatStr.substr(0, pos));
-                    std::string formatBack(formatStr.substr(pos + 2, formatStr.length() - (pos + 2)));
-                    m_formatFront = formatFront.c_str();
-                    m_formatBack = formatBack.c_str();
+                    //"%x %H:%M:%S.%Q" len(14) pos(11)
+                    formatFront = formatStr.substr(0, pos);
+
+                    if (pos < (formatStr.length() - 3))
+                    {
+                        formatBack = formatStr.substr(pos + 3, formatStr.length() - (pos + 3));
+                    }
+                    else
+                    {
+                        formatBack = "";
+                    }
                 }
                 else
                 {
-                    m_formatFront = format;
-                    m_formatBack = "";
+                    formatFront = "";
+                    formatBack = "";
                 }
             }
-            
         }
 }

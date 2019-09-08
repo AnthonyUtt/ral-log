@@ -3,6 +3,7 @@
 #include "../init/macros.h"
 #include "logutil.h"
 #include <streambuf>
+#include <string>
 
 #define DEFAULT_SENDER "RAL-LOG"
 #define DEFAULT_FORMAT "%x %H:%M:%S.%Q"
@@ -16,8 +17,6 @@ namespace log
         LogLevel m_level;
         const char* m_sender;
         const char* m_format;
-        const char* m_formatFront;
-        const char* m_formatBack;
         bool m_ms;
         std::streambuf *m_pBuf;
 
@@ -34,6 +33,6 @@ namespace log
         int_type overflow(int_type c = traits_type::eof());
 
     private:
-        void parseFormat(const char* format);
+        void parseFormat(const char* format, std::string& formatFront, std::string& formatBack);
     };
 }

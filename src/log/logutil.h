@@ -10,7 +10,8 @@ namespace log
         QUIET,
         INFO,
         WARNING,
-        ERROR
+        ERROR,
+        FILE
     };
 
     enum NOT_EXPORTED TextColor
@@ -19,7 +20,8 @@ namespace log
         GRAY,
         GREEN,
         YELLOW,
-        RED
+        RED,
+        NOCOLOR
     };
 
     inline static const char* color(TextColor col)
