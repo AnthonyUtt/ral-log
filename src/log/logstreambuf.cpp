@@ -1,6 +1,8 @@
 #include "logstreambuf.h"
+#include <string>
 #include <sstream>
 #include <time.h>
+#include <chrono>
 
 namespace log
 {
@@ -29,14 +31,36 @@ namespace log
                 m_lineBegin = false;
                 std::ostringstream oss;
 
-                time_t curTime;
+                
+                std::chrono::high_resolution_clock::time_point tp = std::chrono::high_resolution_clock::now();
+                std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+                std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(ms);
+                time_t curTime = s.count();
+
                 struct tm *tmp;
-                char timestamp[32];
+                char timestampFront[32];
+                char timestampBack[32];
                 time(&curTime);
                 tmp = localtime(&curTime);
-                strftime(timestamp, sizeof(timestamp), m_format, tmp);
 
-                oss << timestamp << " [";
+                parseFormat(m_format);
+
+                strftime(timestampFront, sizeof(timestampFront), m_formatFront, tmp);
+                std::size_t fractional_seconds = ms.count() % 1000;
+
+                oss << timestampFront;
+                
+                if (m_ms)
+                {
+                    oss << "." << fractional_seconds;
+
+                    if (m_formatBack != "")
+                    {
+                        strftime(timestampBack, sizeof(timestampBack), m_formatBack, tmp);
+                        oss << timestampBack;
+                    }
+                }
+                oss << " [";
 
                 switch(m_level)
                 {
@@ -72,4 +96,29 @@ namespace log
 
         return value;
     }
+
+    void LogStreamBuf::parseFormat(const char* format)
+        {
+            if (format != "")
+            {
+                m_ms = false;
+                std::string formatStr(format);
+                
+                std::size_t pos = formatStr.find("%Q");
+                if (pos != std::string::npos)
+                {
+                    m_ms = true;
+                    std::string formatFront(formatStr.substr(0, pos));
+                    std::string formatBack(formatStr.substr(pos + 2, formatStr.length() - (pos + 2)));
+                    m_formatFront = formatFront.c_str();
+                    m_formatBack = formatBack.c_str();
+                }
+                else
+                {
+                    m_formatFront = format;
+                    m_formatBack = "";
+                }
+            }
+            
+        }
 }

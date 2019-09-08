@@ -5,7 +5,7 @@
 #include <streambuf>
 
 #define DEFAULT_SENDER "RAL-LOG"
-#define DEFAULT_FORMAT "%x %H:%M:%S"
+#define DEFAULT_FORMAT "%x %H:%M:%S.%Q"
 
 namespace log
 {
@@ -16,6 +16,9 @@ namespace log
         LogLevel m_level;
         const char* m_sender;
         const char* m_format;
+        const char* m_formatFront;
+        const char* m_formatBack;
+        bool m_ms;
         std::streambuf *m_pBuf;
 
     public:
@@ -25,9 +28,12 @@ namespace log
 
         inline void setLevel(LogLevel level) { m_level = level; }
         inline void setSender(const char* sender) { m_sender = (sender != "")?sender:DEFAULT_SENDER; }
-        inline void setTimestampFormat(const char* format) { m_format = (format != "")?format:DEFAULT_FORMAT; }
+        inline void setTimestampFormat(const char* format) { m_format = (format != "")?format:DEFAULT_FORMAT; };
 
     protected:
         int_type overflow(int_type c = traits_type::eof());
+
+    private:
+        void parseFormat(const char* format);
     };
 }

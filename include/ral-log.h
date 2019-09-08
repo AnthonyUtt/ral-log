@@ -7,9 +7,7 @@
 namespace RALlogger
 {
     inline static void logDebug(const char* message, const char* sender = "", const char* format = "")
-    {
-        log::LogStream(std::cout.rdbuf()) << log::DEBUG << log::Sender(sender) << log::Format(format) << message << std::endl;
-    }
+    { log::LogStream(std::cout.rdbuf()) << log::DEBUG << log::Sender(sender) << log::Format(format) << message << std::endl; }
 
     inline static void logQuiet(const char* message, const char* sender = "", const char* format = "")
     { log::LogStream(std::cout.rdbuf()) << log::QUIET << log::Sender(sender) << log::Format(format) << message << std::endl; }
