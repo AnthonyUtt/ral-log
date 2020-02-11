@@ -3,6 +3,7 @@
 #include <time.h>
 #include <chrono>
 #include <iostream>
+#include <iomanip>
 
 namespace log
 {
@@ -53,7 +54,7 @@ namespace log
                 
                 if (m_ms)
                 {
-                    oss << "." << fractional_seconds;
+                    oss << "." << std::setfill('0') << std::setw(3) << fractional_seconds;
 
                     if (formatBack.length() > 0)
                     {
