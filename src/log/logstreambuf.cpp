@@ -101,7 +101,7 @@ namespace log
 
     void LogStreamBuf::parseFormat(const char* format, std::string& formatFront, std::string& formatBack)
         {
-            if (format != "")
+            if (strcmp(format, "") != 0)
             {
                 m_ms = false;
                 std::string formatStr(format);
