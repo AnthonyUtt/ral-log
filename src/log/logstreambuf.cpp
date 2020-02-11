@@ -101,7 +101,7 @@ namespace log
 
     void LogStreamBuf::parseFormat(const char* format, std::string& formatFront, std::string& formatBack)
         {
-            if (strcmp(format, "") != 0)
+            if (strcmp(format, ""))
             {
                 m_ms = false;
                 std::string formatStr(format);
@@ -110,7 +110,6 @@ namespace log
                 if (pos != std::string::npos)
                 {
                     m_ms = true;
-                    //"%x %H:%M:%S.%Q" len(14) pos(11)
                     formatFront = formatStr.substr(0, pos);
 
                     if (pos < (formatStr.length() - 3))
