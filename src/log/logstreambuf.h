@@ -10,7 +10,7 @@
 namespace log
 {
     /// \class LogStreamBuf logstreambuf.h ral-log.h
-    /// This class should not be used directly; use 
+    /// This class should not be used directly; use
     /// LogStream instead.
     class NOT_EXPORTED LogStreamBuf : public std::streambuf {
       private:
@@ -31,18 +31,18 @@ namespace log
         /// __[DO NOT USE]__ Determines color of prefix output.
         inline void setLevel(LogLevel level) { m_level = level; }
 
-        /// __[DO NOT USE]__ Sets the sender of the message, 
+        /// __[DO NOT USE]__ Sets the sender of the message,
         /// which shows in the prefix.
         inline void setSender(const char *sender) { m_sender = strcmp(sender, "") ? sender : DEFAULT_SENDER; }
 
-        /// __[DO NOT USE]__ Sets the format of the timestamp, 
+        /// __[DO NOT USE]__ Sets the format of the timestamp,
         /// which shows in the prefix.
         inline void setTimestampFormat(const char *format) { m_format = strcmp(format, "") ? format : DEFAULT_FORMAT; };
 
       protected:
         /// __[DO NOT USE]__ Override of `std::streambuf::overflow()`.
-        /// Adds custom prefix to log content before 
-        /// writing data to buffer. __This function 
+        /// Adds custom prefix to log content before
+        /// writing data to buffer. __This function
         /// should not be used directly.__
         int_type overflow(int_type c = traits_type::eof());
 

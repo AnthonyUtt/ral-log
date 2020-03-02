@@ -1,9 +1,5 @@
 #pragma once
 
-/// Compile-time definitions of macros related to 
-/// exporting the API to make various targets
-/// visible or hidden to the end-user.
-
 #if defined WIN32
     #ifdef WIN_EXPORT
         #define API __declspec(dllexport)

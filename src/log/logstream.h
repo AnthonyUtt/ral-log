@@ -32,8 +32,8 @@ namespace log
     class API LogStream : public std::ostream {
       public:
         /// `pBuf` is a pointer to a `std::streambuf` object,
-        /// usually found by calling `obj.rdbuf()`; commonly 
-        /// used with `std::cout`, but can be used with any 
+        /// usually found by calling `obj.rdbuf()`; commonly
+        /// used with `std::cout`, but can be used with any
         /// type that implements `std::basic_streambuf`
         LogStream(std::streambuf *pBuf);
 
@@ -47,7 +47,7 @@ namespace log
         inline void setSender(const char *sender) { m_pBuf->setSender(sender); }
 
         /// Sets the format of the timestamp, which shows in the prefix.
-        /// Format rules follow that of `strftime()`, with the addition 
+        /// Format rules follow that of `strftime()`, with the addition
         /// of `%Q` to show milliseconds.
         inline void setFormat(const char *format) { m_pBuf->setTimestampFormat(format); }
 
