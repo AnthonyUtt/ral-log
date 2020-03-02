@@ -1,19 +1,15 @@
 #include "logstreambuf.h"
-#include <sstream>
-#include <time.h>
-#include <chrono>
-#include <iostream>
-#include <iomanip>
+#include "../init/pch.h"
 
 namespace log
 {
     LogStreamBuf::LogStreamBuf(std::streambuf *pBuf)
     {
-        m_pBuf = pBuf;
+        m_pBuf      = pBuf;
         m_lineBegin = true;
-        m_level = INFO;
-        m_sender = DEFAULT_SENDER;
-        m_format = DEFAULT_FORMAT;
+        m_level     = INFO;
+        m_sender    = DEFAULT_SENDER;
+        m_format    = DEFAULT_FORMAT;
     }
 
     void LogStreamBuf::resetPrefix()
@@ -32,11 +28,10 @@ namespace log
                 m_lineBegin = false;
                 std::ostringstream oss;
 
-                
                 std::chrono::high_resolution_clock::time_point tp = std::chrono::high_resolution_clock::now();
-                std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
-                std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(ms);
-                time_t curTime = s.count();
+                std::chrono::milliseconds ms                      = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+                std::chrono::seconds s                            = std::chrono::duration_cast<std::chrono::seconds>(ms);
+                time_t curTime                                    = s.count();
 
                 struct tm *tmp;
                 char timestampFront[32];
@@ -51,7 +46,7 @@ namespace log
                 std::size_t fractional_seconds = ms.count() % 1000;
 
                 oss << timestampFront;
-                
+
                 if (m_ms)
                 {
                     oss << "." << std::setfill('0') << std::setw(3) << fractional_seconds;
@@ -64,69 +59,76 @@ namespace log
                 }
                 oss << " [";
 
-                switch(m_level)
+                switch (m_level)
                 {
-                    case DEBUG: oss << color(WHITE);
+                    case DEBUG:
+                        oss << color(WHITE);
                         break;
-                    case QUIET: oss << color(GRAY);
+                    case QUIET:
+                        oss << color(GRAY);
                         break;
-                    case INFO: oss << color(GREEN);
+                    case INFO:
+                        oss << color(GREEN);
                         break;
-                    case WARNING: oss << color(YELLOW);
+                    case WARNING:
+                        oss << color(YELLOW);
                         break;
-                    case ERROR: oss << color(RED);
+                    case ERROR:
+                        oss << color(RED);
                         break;
-                    case FILE: oss << color(NOCOLOR);
-                    default: break;
+                    case FILE:
+                        oss << color(NOCOLOR);
+                    default:
+                        break;
                 }
 
-                oss << m_sender << ((m_level == FILE)?color(NOCOLOR):color(WHITE)) << "]: ";
+                oss << m_sender << ((m_level == FILE) ? color(NOCOLOR) : color(WHITE)) << "]: ";
 
-                std::string ostr = oss.str();
+                std::string ostr      = oss.str();
                 std::streamsize ssize = m_pBuf->sputn(ostr.c_str(), ostr.length());
-                if (ssize != ostr.length())
+                if (ssize != static_cast<unsigned int>(ostr.length()))
                     return traits_type::eof();
             }
 
-            value = m_pBuf->sputc(c);
+            value = m_pBuf->sputc(static_cast<char>(c));
         }
 
         if (traits_type::eq_int_type(c, traits_type::to_int_type('\n')))
         {
             m_lineBegin = true;
-            m_level = INFO;
+            m_level     = INFO;
         }
 
         return value;
     }
 
-    void LogStreamBuf::parseFormat(const char* format, std::string& formatFront, std::string& formatBack)
+    void LogStreamBuf::parseFormat(const char *format, std::string &formatFront, std::string &formatBack)
+    {
+        if (strcmp(format, ""))
         {
-            if (strcmp(format, ""))
-            {
-                m_ms = false;
-                std::string formatStr(format);
-                
-                std::size_t pos = formatStr.find(".%Q");
-                if (pos != std::string::npos)
-                {
-                    m_ms = true;
-                    formatFront = formatStr.substr(0, pos);
+            m_ms = false;
+            std::string formatStr(format);
 
-                    if (pos < (formatStr.length() - 3))
-                    {
-                        formatBack = formatStr.substr(pos + 3, formatStr.length() - (pos + 3));
-                    }
-                    else
-                    {
-                        formatBack = "";
-                    }
+            std::size_t pos = formatStr.find(".%Q");
+            if (pos != std::string::npos)
+            {
+                m_ms        = true;
+                formatFront = formatStr.substr(0, pos);
+
+                if (pos < (formatStr.length() - 3))
+                {
+                    formatBack = formatStr.substr(pos + 3, formatStr.length() - (pos + 3));
                 }
                 else
                 {
-                    formatFront = "";
                     formatBack = "";
                 }
             }
+            else
+            {
+                formatFront = "";
+                formatBack  = "";
+            }
         }
-}
+    }
+}  // namespace log

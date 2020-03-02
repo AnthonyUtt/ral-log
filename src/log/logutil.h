@@ -24,26 +24,32 @@ namespace log
         NOCOLOR
     };
 
-    inline static const char* color(TextColor col)
+    inline static const char *color(TextColor col)
     {
-        const char* retVal;
+        const char *retVal;
 
         switch (col)
         {
-            case WHITE: retVal = "\033[0m";
+            case WHITE:
+                retVal = "\033[0m";
                 break;
-            case GRAY: retVal = "\033[37m";
+            case GRAY:
+                retVal = "\033[37m";
                 break;
-            case GREEN: retVal = "\033[92m";
+            case GREEN:
+                retVal = "\033[92m";
                 break;
-            case YELLOW: retVal = "\033[93m";
+            case YELLOW:
+                retVal = "\033[93m";
                 break;
-            case RED: retVal = "\033[91m";
+            case RED:
+                retVal = "\033[91m";
                 break;
-            default: retVal = "";
+            default:
+                retVal = "";
                 break;
         }
 
         return retVal;
     }
-}
+}  // namespace log

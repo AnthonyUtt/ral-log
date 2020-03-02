@@ -8,8 +8,8 @@
     #endif
     #define NOT_EXPORTED
 #elif defined GNU_EXPORT
-    #define API __attribute__ ((visibility ("default")))
-    #define NOT_EXPORTED __attribute__ ((visibility ("hidden")))
+    #define API __attribute__((visibility("default")))
+    #define NOT_EXPORTED __attribute__((visibility("hidden")))
 #else
     #define API
     #define NOT_EXPORTED

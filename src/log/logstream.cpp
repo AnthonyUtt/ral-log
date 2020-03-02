@@ -7,4 +7,4 @@ namespace log
         m_pBuf = new LogStreamBuf(pBuf);
         rdbuf(m_pBuf);
     }
-}
+}  // namespace log

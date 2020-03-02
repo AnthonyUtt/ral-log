@@ -1,34 +1,64 @@
-# Setting CMake required version
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12.4)
 
-# Initializing project info
-set(PROJECT_VERSION "1.0")
-project(ral-log VERSION ${PROJECT_VERSION} LANGUAGES CXX)
+# Set up project name and default settings
+project(ral-log VERSION 1.0)
+include(cmake/DefaultProjectSettings.cmake)
 
-# Source file info
-set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-file(GLOB SOURCES ${SRC_DIR}/log/*.cpp)
+# "Library" for project options / C++ standard
+add_library(project_options INTERFACE)
+target_compile_features(project_options INTERFACE cxx_std_17)
 
-# Creating library target
-add_library(${PROJECT_NAME} SHARED)
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+# "Library" for compiler warning flags
+add_library(project_warnings INTERFACE)
 
-# Naming convention for output files
-set_target_properties(${PROJECT_NAME}
-PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION}
-)
+# Add project warnings module
+include(cmake/CompilerWarnings.cmake)
+set_project_warnings(project_warnings)
 
-# Compiler-specific flags
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    # g++
-    target_compile_options(${PROJECT_NAME} PRIVATE -g -Wall -Wextra)
-    # Setting definition to export symbols
-    target_compile_definitions(${PROJECT_NAME} PRIVATE GNU_EXPORT)
-elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-    # MSVC
-    target_compile_options(${PROJECT_NAME} PRIVATE /EHsc /MTd /W2 /c)
-    # Setting definition to export symbols
-    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN_EXPORT)
+# Add sanitizer module
+include(cmake/CompilerSanitizers.cmake)
+enable_sanitizers(project_options)
+
+# Add doxygen
+include(cmake/Doxygen.cmake)
+enable_doxygen()
+
+# Enable static analyzers
+include(cmake/StaticAnalysis.cmake)
+
+# Various extra options go here
+option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
+option(ENABLE_TESTING "Enable test builds" ON)
+
+# Any pre-compiled header files should be placed in ${PROJECT_SOURCE_DIR}/include
+option(ENABLE_PCH "Enable pre-compiled headers" OFF)
+if(ENABLE_PCH)
+    file(GLOB pch_files "${PROJECT_SOURCE_DIR}/src/init/pch.h")
+    target_precompile_headers(project_options INTERFACE ${pch_files})
 endif()
+
+# Conan setup
+set(CONAN_EXTRA_REQUIRES "")
+set(CONAN_EXTRA_OPTIONS "")
+
+include(cmake/Conan.cmake)
+run_conan()
+
+# Testing setup
+if(ENABLE_TESTING)
+    enable_testing()
+    message(STATUS "Building tests")
+    add_subdirectory(test)
+endif()
+
+# Create variable for source files
+set(source_dir "${PROJECT_SOURCE_DIR}/src/")
+file(GLOB source_files "${source_dir}/log/*.cpp")
+
+# Add executable to build
+add_library(${PROJECT_NAME} ${source_files})
+target_link_libraries(${PROJECT_NAME} PRIVATE project_options project_warnings)
+
+# Add API flags
+include(cmake/APIExportFlags.cmake)
+set_api_flags()
